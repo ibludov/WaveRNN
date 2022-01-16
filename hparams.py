@@ -5,6 +5,21 @@
 wav_path = '/path/to/wav_files/'
 data_path = 'data/'
 
+"""
+dataset = "Music"
+data_path = "/media/windows_d/dataset/music/20gb/dataset.demo.8/"
+env_data_path = os.getenv("DATASET_DIR")
+if env_data_path :
+#     print("$DATASET_DIR = ", env_data_path)
+    data_path = env_data_path
+    
+print("data_path = ", data_path)
+
+working_dir = data_path + "/fastspeech/"
+
+if not os.path.exists(working_dir):
+    os.makedirs(working_dir)
+"""
 # model ids are separate - that way you can use a new tts with an old wavernn and vice versa
 # NB: expect undefined behaviour if models were trained on different DSP settings
 voc_model_id = 'ljspeech_mol'
@@ -17,12 +32,12 @@ ignore_tts = False
 # DSP --------------------------------------------------------------------------------------------------------------#
 
 # Settings for all models
-sample_rate = 22050
+sample_rate = 16000
 n_fft = 2048
 fft_bins = n_fft // 2 + 1
 num_mels = 80
-hop_length = 275                    # 12.5ms - in line with Tacotron 2 paper
-win_length = 1100                   # 50ms - same reason as above
+hop_length = 200                    # 12.5ms - in line with Tacotron 2 paper
+win_length = 800                   # 50ms - same reason as above
 fmin = 40
 min_level_db = -100
 ref_level_db = 20
@@ -36,7 +51,7 @@ peak_norm = False                   # Normalise to the peak of each wav file
 
 # Model Hparams
 voc_mode = 'MOL'                    # either 'RAW' (softmax on raw bits) or 'MOL' (sample from mixture of logistics)
-voc_upsample_factors = (5, 5, 11)   # NB - this needs to correctly factorise hop_length
+voc_upsample_factors = (5, 5, 8)   # NB - this needs to correctly factorise hop_length
 voc_rnn_dims = 512
 voc_fc_dims = 512
 voc_compute_dims = 128

@@ -38,21 +38,25 @@ def convert_file(path: Path):
     peak = np.abs(y).max()
     if hp.peak_norm or peak > 1.0:
         y /= peak
-    mel = melspectrogram(y)
+    # mel = melspectrogram(y)
     if hp.voc_mode == 'RAW':
         quant = encode_mu_law(y, mu=2**hp.bits) if hp.mu_law else float_2_label(y, bits=hp.bits)
     elif hp.voc_mode == 'MOL':
         quant = float_2_label(y, bits=16)
 
-    return mel.astype(np.float32), quant.astype(np.int64)
+    # return mel.astype(np.float32), quant.astype(np.int64)
+    return None, quant.astype(np.int64)
 
 
 def process_wav(path: Path):
     wav_id = path.stem
     m, x = convert_file(path)
-    np.save(paths.mel/f'{wav_id}.npy', m, allow_pickle=False)
-    np.save(paths.quant/f'{wav_id}.npy', x, allow_pickle=False)
-    return wav_id, m.shape[-1]
+    # np.save(paths.mel/f'{wav_id}.npy', m, allow_pickle=False)
+    if Path(paths.mel/f'{wav_id}.npy').is_file() :
+        np.save(paths.quant/f'{wav_id}.npy', x, allow_pickle=False)
+        return wav_id, x.shape[-1]
+    else:
+        return None, None
 
 
 wav_files = get_files(path, extension)
@@ -88,6 +92,8 @@ else:
     dataset = []
 
     for i, (item_id, length) in enumerate(pool.imap_unordered(process_wav, wav_files), 1):
+        if not item_id or not length:
+            continue
         dataset += [(item_id, length)]
         bar = progbar(i, len(wav_files))
         message = f'{bar} {i}/{len(wav_files)} '
