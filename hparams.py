@@ -59,7 +59,7 @@ voc_res_out_dims = 128
 voc_res_blocks = 10
 
 # Training
-voc_batch_size = 32
+voc_batch_size = 64
 voc_lr = 1e-4
 voc_checkpoint_every = 25_000
 voc_gen_at_checkpoint = 5           # number of samples to generate at each checkpoint

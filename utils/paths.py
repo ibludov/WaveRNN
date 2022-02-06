@@ -11,6 +11,7 @@ class Paths:
         self.data = Path(data_path).expanduser().resolve()
         self.quant = self.data/'quant'
         self.mel = self.data/'mel'
+        # self.mel = "/media/windows_d/dataset/music_project_latest/DATASET/fastspeech/eval/Music"
         self.gta = self.data/'gta'
 
         # WaveRNN/Vocoder Paths

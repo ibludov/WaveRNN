@@ -25,6 +25,9 @@ class VocoderDataset(Dataset):
     def __getitem__(self, index):
         item_id = self.metadata[index]
         m = np.load(self.mel_path/f'{item_id}.npy')
+        # print (m.shape)
+        m = m.transpose()
+        # print ("trans: ", m.shape)
         x = np.load(self.quant_path/f'{item_id}.npy')
         return m, x
 
@@ -51,7 +54,7 @@ def get_vocoder_datasets(path: Path, batch_size, train_gta):
     train_set = DataLoader(train_dataset,
                            collate_fn=collate_vocoder,
                            batch_size=batch_size,
-                           num_workers=2,
+                           num_workers=4,
                            shuffle=True,
                            pin_memory=True)
 

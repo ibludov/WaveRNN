@@ -50,11 +50,12 @@ def convert_file(path: Path):
 
 def process_wav(path: Path):
     wav_id = path.stem
-    m, x = convert_file(path)
     # np.save(paths.mel/f'{wav_id}.npy', m, allow_pickle=False)
+    # print(wav_id)
     if Path(paths.mel/f'{wav_id}.npy').is_file() :
-        np.save(paths.quant/f'{wav_id}.npy', x, allow_pickle=False)
-        return wav_id, x.shape[-1]
+        # m, x = convert_file(path)
+        # np.save(paths.quant/f'{wav_id}.npy', x, allow_pickle=False)
+        return wav_id, 1 #x.shape[-1]
     else:
         return None, None
 

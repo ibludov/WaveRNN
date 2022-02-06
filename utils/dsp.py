@@ -70,6 +70,7 @@ def spectrogram(y):
 
 
 def melspectrogram(y):
+    raise Exception("should not be here")
     D = stft(y)
     S = amp_to_db(linear_to_mel(np.abs(D)))
     return normalize(S)

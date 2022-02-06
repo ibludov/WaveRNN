@@ -6,7 +6,7 @@ from utils.display import simple_table
 import torch
 import argparse
 from pathlib import Path
-
+from tqdm import tqdm
 
 def gen_testset(model: WaveRNN, test_set, samples, batched, target, overlap, save_path: Path):
 
@@ -65,7 +65,9 @@ def gen_from_file(model: WaveRNN, load_path: Path, save_path: Path, batched, tar
     _ = model.generate(mel, save_str, batched, target, overlap, hp.mu_law)
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+
+def main0():
 
     parser = argparse.ArgumentParser(description='Generate WaveRNN Samples')
     parser.add_argument('--batched', '-b', dest='batched', action='store_true', help='Fast Batched Generation')
@@ -140,3 +142,58 @@ if __name__ == "__main__":
         gen_testset(model, test_set, samples, batched, target, overlap, paths.voc_output)
 
     print('\n\nExiting...\n')
+    
+    
+def main1():
+    parser = argparse.ArgumentParser(description='Generate WaveRNN Samples')
+    parser.add_argument('files', nargs='+')
+    args = parser.parse_args()
+    
+    hp.configure("hparams.py")
+    
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
+    print('Using device:', device)
+
+    print('\nInitialising Model...\n')
+
+    model = WaveRNN(rnn_dims=hp.voc_rnn_dims,
+                    fc_dims=hp.voc_fc_dims,
+                    bits=hp.bits,
+                    pad=hp.voc_pad,
+                    upsample_factors=hp.voc_upsample_factors,
+                    feat_dims=hp.num_mels,
+                    compute_dims=hp.voc_compute_dims,
+                    res_out_dims=hp.voc_res_out_dims,
+                    res_blocks=hp.voc_res_blocks,
+                    hop_length=hp.hop_length,
+                    sample_rate=hp.sample_rate,
+                    mode=hp.voc_mode).to(device)
+    
+    paths = Paths(hp.data_path, hp.voc_model_id, hp.tts_model_id)
+
+    # voc_weights = args.voc_weights if args.voc_weights else paths.voc_latest_weights
+    voc_weights = paths.voc_latest_weights
+
+    model.load(voc_weights)
+    
+    for file in tqdm(args.files, "Generate WaveRNN:"):
+        mel = np.load(file)
+        if mel.ndim != 2 or mel.shape[0] != hp.num_mels:
+            raise ValueError(f'Expected a numpy array shaped (n_mels, n_hops), but got {wav.shape}!')
+        # _max = np.max(mel)
+        # _min = np.min(mel)
+        # if _max >= 1.01 or _min <= -0.01:
+        #     raise ValueError(f'Expected spectrogram range in [0,1] but was instead [{_min}, {_max}]')
+
+        mel = torch.tensor(mel).unsqueeze(0)
+    
+        out_wav = file.replace(".npy",".wavernn.wav")
+
+        _ = model.generate(mel, out_wav, hp.voc_gen_batched, hp.voc_target, hp.voc_overlap, hp.mu_law)
+
+
+if __name__ == "__main__":
+    main1()
